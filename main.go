@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 
 	"github.com/gin-gonic/gin"
@@ -103,10 +104,12 @@ func main() {
 
 	// CORS middleware
 	router.Use(func(c *gin.Context) {
-		allowedOrigins := []string{"http://localhost:3000", "https://www.amazon.com.au"}
+
+		// chrome-extension://fcakjiobnmmcgmhchmhedpokbemacee
+		allowedOrigins := []string{"http://localhost:3000", "https://www.amazon.com.au", "chrome-extension://"}
 		origin := c.Request.Header.Get("Origin")
 		for _, allowedOrigin := range allowedOrigins {
-			if origin == allowedOrigin {
+			if strings.HasPrefix(origin, allowedOrigin) {
 				c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
 				break
 			}
