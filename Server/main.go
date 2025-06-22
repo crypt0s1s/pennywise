@@ -8,8 +8,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 
-	"terrible-ideas-2025/Server/models"
-	scissorspaperrock "terrible-ideas-2025/Server/scissorsPaperRock"
+	golf "terrible-ideas-2025/golf"
+	models "terrible-ideas-2025/models"
+	scissorspaperrock "terrible-ideas-2025/scissorsPaperRock"
 )
 
 var upgrader = websocket.Upgrader{
@@ -116,9 +117,41 @@ func main() {
 	})
 
 	scissorspaperrock.SetupScissorsPaperRockRoutes(router, hub.broadcast)
+	golf.SetupGolfRoutes(router, hub.broadcast)
 
 	router.GET("/ws", func(c *gin.Context) {
 		serveWs(hub, c.Writer, c.Request)
+	})
+
+	router.GET("/games", func(c *gin.Context) {
+		battlesMutex.Lock()
+		defer battlesMutex.Unlock()
+
+		var golfGames = golf.GetAvailableGames()
+		var sprGames = scissorspaperrock.GetAvailableGames()
+
+		// Combine both game types into a single slice
+		allGames := make([]gin.H, 0)
+
+		// Add golf games
+		for _, game := range golfGames {
+			allGames = append(allGames, gin.H{
+				"game_id": game.GameID,
+				"product": game.Product,
+				"type":    "golf",
+			})
+		}
+
+		// Add scissors paper rock games
+		for _, game := range sprGames {
+			allGames = append(allGames, gin.H{
+				"game_id": game.GameID,
+				"product": game.Product,
+				"type":    "spr",
+			})
+		}
+
+		c.JSON(http.StatusOK, allGames)
 	})
 
 	log.Println("Server starting on :8080")

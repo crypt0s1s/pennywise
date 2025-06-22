@@ -1,4 +1,4 @@
-package scissorspaperrock
+package golf
 
 import (
 	"time"
@@ -6,19 +6,10 @@ import (
 	"terrible-ideas-2025/models"
 )
 
-// GameAction defines the possible actions in a game of scissors, paper, rock
-type GameAction string
-
-const (
-	GameActionScissors GameAction = "scissors"
-	GameActionPaper    GameAction = "paper"
-	GameActionRock     GameAction = "rock"
-)
-
 // Move represents a single move in a game of scissors, paper, rock
 type Move struct {
-	Round  int        `json:"round"`
-	Action GameAction `json:"action"`
+	Round int     `json:"round"`
+	Score float32 `json:"score"`
 }
 
 // Game represents a single instance of a scissors, paper, rock game

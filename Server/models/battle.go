@@ -1,6 +1,9 @@
 package models
 
 // BattleType defines the type of battle (e.g., scissors, paper, rock)
+
+import "time"
+
 type BattleType string
 
 const (
@@ -10,14 +13,13 @@ const (
 
 // Battle represents a PvP battle instance
 type Battle struct {
-	ID           string     `json:"id"`
-	ItemName     string     `json:"item_name"`
-	ItemCost     float64    `json:"item_cost"`
-	BattleType   BattleType `json:"battle_type"`
-	OwnerID      string     `json:"owner_id"`
-	ChallengerID string     `json:"challenger_id,omitempty"`
-	Status       string     `json:"status"` // e.g., "pending", "accepted", "completed"
-	GameID       string     `json:"game_id,omitempty"`
+	ID        string     `json:"id"`
+	Type      BattleType `json:"type"`
+	Player1ID string     `json:"player1_id"`
+	Player2ID string     `json:"player2_id"`
+	Status    string     `json:"status"`  // e.g., "pending", "active", "completed"
+	GameID    string     `json:"game_id"` // ID of the associated game (e.g., for SPR or Archery)
+	CreatedAt time.Time  `json:"created_at"`
 }
 
 // BattleRequest represents the request body for initiating a battle
@@ -32,14 +34,4 @@ type BattleRequest struct {
 type AcceptBattleRequest struct {
 	BattleID     string `json:"battle_id" binding:"required"`
 	ChallengerID string `json:"challenger_id" binding:"required"`
-}
-
-type ArcheryGame struct {
-	GameID       string `json:"game_id"`
-	BattleID     string `json:"battle_id"`
-	Player1ID    string `json:"player1_id"`
-	Player2ID    string `json:"player2_id"`
-	Player1Score int    `json:"player1_score"`
-	Player2Score int    `json:"player2_score"`
-	Status       string `json:"status"`
 }

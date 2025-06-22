@@ -1,4 +1,4 @@
-package scissorspaperrock
+package golf
 
 import (
 	"encoding/json"
@@ -52,10 +52,10 @@ func createGame(ownerID string, product models.Product) string {
 	return gameID
 }
 
-func SetupScissorsPaperRockRoutes(router *gin.Engine, broadcast chan []byte) {
-	log.Println("Setting up scissor paper rock routes")
+func SetupGolfRoutes(router *gin.Engine, broadcast chan []byte) {
+	log.Println("Setting up golf routes")
 
-	router.POST("/spr/initiate", func(c *gin.Context) {
+	router.POST("/golf/initiate", func(c *gin.Context) {
 		var req struct {
 			UserID  string         `json:"user_id" binding:"required"`
 			Product models.Product `json:"product" binding:"required"`
@@ -72,12 +72,14 @@ func SetupScissorsPaperRockRoutes(router *gin.Engine, broadcast chan []byte) {
 			return
 		}
 
+		log.Printf("Initiating golf game with product: %+v", req.Product)
+
 		var gameID = createGame(req.UserID, req.Product)
 
 		c.JSON(http.StatusOK, gin.H{"status": "success", "message": "Game created", "game_id": gameID})
 	})
 
-	router.POST("/spr/accept", func(c *gin.Context) {
+	router.POST("/golf/accept", func(c *gin.Context) {
 		var req struct {
 			UserID string `json:"user_id" binding:"required"`
 			GameID string `json:"game_id" binding:"required"`
@@ -131,13 +133,13 @@ func SetupScissorsPaperRockRoutes(router *gin.Engine, broadcast chan []byte) {
 
 	})
 
-	router.POST("/spr/:game_id", func(c *gin.Context) {
+	router.POST("/golf/:game_id", func(c *gin.Context) {
 		gameID := c.Param("game_id")
 
 		var req struct {
-			UserID string     `json:"user_id" binding:"required"`
-			Action GameAction `json:"action" binding:"required"`
-			Round  int        `json:"round" binding:"required"`
+			UserID string  `json:"user_id" binding:"required"`
+			Score  float32 `json:"score" binding:"required"`
+			Round  int     `json:"round" binding:"required"`
 		}
 
 		if err := c.ShouldBindJSON(&req); err != nil {
@@ -162,8 +164,8 @@ func SetupScissorsPaperRockRoutes(router *gin.Engine, broadcast chan []byte) {
 
 		// Log the move
 		newMove := Move{
-			Action: req.Action,
-			Round:  req.Round,
+			Score: req.Score,
+			Round: req.Round,
 		}
 
 		// Check if move for this round already exists
@@ -200,7 +202,7 @@ func SetupScissorsPaperRockRoutes(router *gin.Engine, broadcast chan []byte) {
 		c.JSON(http.StatusOK, gin.H{"status": "success", "message": "Move logged", "game": game})
 	})
 
-	router.GET("/spr/:game_id", func(c *gin.Context) {
+	router.GET("/golf/:game_id", func(c *gin.Context) {
 		gameID := c.Param("game_id")
 
 		gamesMutex.Lock()
